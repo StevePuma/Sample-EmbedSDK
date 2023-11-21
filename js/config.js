@@ -17,18 +17,18 @@
      */
     const obj = {
         // UPDATE THIS
-        baseUrl: 'http://10.53.1.107:8081',
+        baseUrl: 'https://themortgageoffice.sisensepoc.com',
 
         // UPDATE THIS
         dashboards: [
             {
                 title: "Demo Dashboard #1",
-                oid: "5d371bf198b98a113c6a5f38",
+                oid: "655d10aee7520d00336ea389",
                 default: true
             },
             {
                 title: "Demo Dashboard #2",
-                oid: "5d46cf2dcccce82a64866050",
+                oid: "655d10fde7520d00336ea3a6",
                 default: false
             }
         ],
