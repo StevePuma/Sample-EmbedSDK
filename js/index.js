@@ -11,14 +11,14 @@
  */
 
 function ready(fn) {
-	if (document.readyState != 'loading'){
-	  fn();
+	if (document.readyState != 'loading') {
+		fn();
 	} else {
-	  document.addEventListener('DOMContentLoaded', fn);
+		document.addEventListener('DOMContentLoaded', fn);
 	}
 }
 
-ready(function() {
+ready(function () {
 
 	/***************************************/
 	/** Section 1: UI Setup               **/
@@ -29,34 +29,51 @@ ready(function() {
 	var config = window['embedsdk.demo.config'];
 
 	// DOM Elements
-	var	countryFilterElement	= document.getElementById('countryInput'),
-		frameContainerElement	= document.getElementById('frameContainer'),
-		fromDateElement 		= document.getElementById('fromDate'),
-		toDateElement			= document.getElementById('toDate'),
-		saveElement				= document.getElementById('save');
+	var countryFilterElement = document.getElementById('countryInput'),
+		frameContainerElement = document.getElementById('frameContainer'),
+		fromDateElement = document.getElementById('fromDate'),
+		toDateElement = document.getElementById('toDate'),
+		saveElement = document.getElementById('save');
+
+	// Create "Ask Me" button
+	var askMeButton = document.createElement('button');
+	askMeButton.innerText = 'Ask Me';
+	askMeButton.id = 'askMeButton';
+
+	// Append button to the document body or any suitable container
+	document.body.appendChild(askMeButton);
+
+	// Set click event handler for "Ask Me" button
+	askMeButton.addEventListener('click', function () {
+		Sisense.connect('https://themortgageoffice.sisensepoc.com/').then(function (app) {
+			app.dashboards.load('655d10fde7520d00336ea3a6').then(function (dashboard) {
+				dashboard.popSimplyAsk({ containerClass: 'custom-class-name' });
+			});
+		});
+	});
 
 	// Set some defaults
 	window.sizingMode = 'set';
 	window.editMode = false;
 	window.currentDashboard = config.defaultDashOid;
-	
+
 	// Render Dashboard Navigation Panel items
-	renderNavigation(config.dashboards, document.querySelectorAll('.sidebar ul.nav')[0], function(item) {
+	renderNavigation(config.dashboards, document.querySelectorAll('.sidebar ul.nav')[0], function (item) {
 		logger.log('Navigating to dashboard ' + item.oid);
 		// Navigate to a dashboard
-		sisenseFrame.dashboard.open(item.oid, window.editMode).then(function() {
+		sisenseFrame.dashboard.open(item.oid, window.editMode).then(function () {
 			logger.log('Navigated to new dashboard ' + item.oid);
 			currentDashboard = item.oid;
 		});
 	});
 
 	// Set handlers for various buttons
-	document.getElementById('filterButton').addEventListener('click',updateFilters);
-	document.getElementById('clearButton').addEventListener('click',clearFilters);
-	document.getElementById('exportButton').addEventListener('click',exportPDF);
-	document.getElementById('advancedButton').addEventListener('click',toggleFilterPane);
-	document.getElementById('sizingButton').addEventListener('click',toggleSizingMode);
-	document.getElementById('editButton').addEventListener('click',toggleEditMode);
+	document.getElementById('filterButton').addEventListener('click', updateFilters);
+	document.getElementById('clearButton').addEventListener('click', clearFilters);
+	document.getElementById('exportButton').addEventListener('click', exportPDF);
+	document.getElementById('advancedButton').addEventListener('click', toggleFilterPane);
+	document.getElementById('sizingButton').addEventListener('click', toggleSizingMode);
+	document.getElementById('editButton').addEventListener('click', toggleEditMode);
 
 	/***************************************/
 	/** Section 2: Embedding              **/
@@ -64,26 +81,26 @@ ready(function() {
 
 	// Import SDK
 	var SisenseFrame = window['sisense.embed'].SisenseFrame,
-		enums 		 = window['sisense.embed'].enums;
+		enums = window['sisense.embed'].enums;
 
 	// Instantiate SDK
 	var sisenseFrame = new SisenseFrame({
 		url: config.baseUrl,
 		dashboard: currentDashboard
 	});
-	
+
 	// Render iFrame
-	sisenseFrame.render(frameContainerElement).then(function() {
+	sisenseFrame.render(frameContainerElement).then(function () {
 
 		logger.log('iFrame element rendered');
-		
+
 		// Get current user
-		sisenseFrame.app.getUser().then(function(user) {
+		sisenseFrame.app.getUser().then(function (user) {
 			logger.log('Got current user information: ' + user.username);
 		});
 
 		// Get application info
-		sisenseFrame.app.getInfo().then(function(info) {
+		sisenseFrame.app.getInfo().then(function (info) {
 			logger.log("Sisense version is " + info.version);
 		});
 
@@ -113,7 +130,7 @@ ready(function() {
 	function renderNavigation(dashboards, container, handler) {
 
 		// Render Dashboard Navigation Panel items
-		dashboards.forEach(function(item) {
+		dashboards.forEach(function (item) {
 
 			// Ignore hidden dashboards
 			if (item.hide) return;
@@ -133,7 +150,7 @@ ready(function() {
 			listItemElement.appendChild(anchorElement);
 
 			// Set click event handler
-			listItemElement.addEventListener('click',function() {
+			listItemElement.addEventListener('click', function () {
 				handler(item);
 			});
 
@@ -153,20 +170,20 @@ ready(function() {
 		logger.log('Updating dashboard filters');
 
 		// Get values from UI
-		var value   = countryFilterElement.value || '',
-			from    = fromDateElement.value 	 || null,
-			to      = toDateElement.value 	     || null,
+		var value = countryFilterElement.value || '',
+			from = fromDateElement.value || null,
+			to = toDateElement.value || null,
 			persist = saveElement.checked
 
 		// Create JAQL filters
 		var filters = [
 			{
-				"jaql" : {
+				"jaql": {
 					"title": "Country",
-					"dim" : config.countryDim,
+					"dim": config.countryDim,
 					"datatype": "text",
-					"filter" : {
-						"startsWith" : value
+					"filter": {
+						"startsWith": value
 					}
 				}
 			},
@@ -185,7 +202,7 @@ ready(function() {
 		];
 
 		// Apply filters to the current dashboard
-		sisenseFrame.dashboard.applyFilters(filters, persist).then(function() {
+		sisenseFrame.dashboard.applyFilters(filters, persist).then(function () {
 			logger.log('Applied filters');
 		});
 	}
@@ -206,8 +223,8 @@ ready(function() {
 		// Create JAQL	 
 		var filters = [
 			{
-				"jaql" : {
-					"dim" : config.countryDim
+				"jaql": {
+					"dim": config.countryDim
 				}
 			},
 			{
@@ -219,11 +236,11 @@ ready(function() {
 		];
 
 		// Remove filters from the current dashboard
-		sisenseFrame.dashboard.removeFilters(filters, persist).then(function() {
+		sisenseFrame.dashboard.removeFilters(filters, persist).then(function () {
 			logger.log('Removed filters');
-		});	
+		});
 	}
-	
+
 	/**
 	 * Invokes the `dashboard.export` action in default mode, which is PDF
 	 */
@@ -232,8 +249,8 @@ ready(function() {
 		logger.log('Opening export window');
 
 		// Open Sisense Dashboard Export to PDF window
-		sisenseFrame.dashboard.export().then(function() {
-			logger.log('Rxport window closed');
+		sisenseFrame.dashboard.export().then(function () {
+			logger.log('Export window closed');
 		});
 	}
 
@@ -249,7 +266,7 @@ ready(function() {
 		currentSettings.showRightPane = !currentSettings.showRightPane;
 
 		// Update to new settings
-		sisenseFrame.updateSettings(currentSettings).then(function() {
+		sisenseFrame.updateSettings(currentSettings).then(function () {
 			logger.log('Updated UI settings');
 		});
 	}
@@ -263,13 +280,13 @@ ready(function() {
 		window.sizingMode = (window.sizingMode == 'set' ? 'fit' : 'set');
 
 		// If new mode is `set` apply a predefined height
-		if(window.sizingMode == 'set') {
+		if (window.sizingMode == 'set') {
 			frameContainerElement.style['height'] = '600px';
 		}
 		// If new mode is `fit` get the real dashboard height and adjust accordingly
 		else {
-			sisenseFrame.getSize().then(function(data) {
-				frameContainerElement.style['height'] = data.content.height+'px';
+			sisenseFrame.getSize().then(function (data) {
+				frameContainerElement.style['height'] = data.content.height + 'px';
 			});
 		}
 	}
@@ -283,7 +300,7 @@ ready(function() {
 		window.editMode = !window.editMode;
 
 		// Re-open current dashboard in new mode
-		sisenseFrame.dashboard.open(currentDashboard, editMode).then(function(dash) {
+		sisenseFrame.dashboard.open(currentDashboard, editMode).then(function (dash) {
 			logger.log('Reloaded dashboard ' + dash.oid + ' with edit mode: ' + editMode);
 		});
 
@@ -296,7 +313,7 @@ ready(function() {
 	function widgetLoadedHandler(args) {
 
 		// Check that we are really in widget mode
-		if(args.widget && Object.keys(args.widget).length) {
+		if (args.widget && Object.keys(args.widget).length) {
 
 			var currentSettings = sisenseFrame.getSettings();
 
@@ -306,7 +323,7 @@ ready(function() {
 			currentSettings.showToolbar = true;
 
 			// Update to new settings
-			sisenseFrame.updateSettings(currentSettings).then(function() {
+			sisenseFrame.updateSettings(currentSettings).then(function () {
 				logger.log('Updated UI settings');
 			});
 		}
@@ -319,17 +336,17 @@ ready(function() {
 	function widgetUnloadedHandler(args) {
 
 		// Check that we are really in widget mode
-		if(args.widget && Object.keys(args.widget).length) {
+		if (args.widget && Object.keys(args.widget).length) {
 
 			var currentSettings = sisenseFrame.getSettings();
 
 			// Toggle
 			currentSettings.showRightPane = false;
 			currentSettings.showLeftPane = false;
-			currentSettings.showToolbar = false;
+			currentSettings.showToolbar = true;
 
 			// Update to new settings
-			sisenseFrame.updateSettings(currentSettings).then(function() {
+			sisenseFrame.updateSettings(currentSettings).then(function () {
 				logger.log('Updated UI settings');
 			});
 		}
@@ -340,18 +357,18 @@ ready(function() {
 	 * @param {object} args event arguments containing the dashboard causing the event
 	 */
 	function dashboardLoadedHandler(args) {
-				
+
 		var dash = args.dashboard;
 		logger.log('Dashboard ' + dash.oid + ' loaded');
 
 		// Mark current dashboard in navver
-		var itemElement = config.dashboards.find(function(item) { return item.oid == dash.oid }).el;
+		var itemElement = config.dashboards.find(function (item) { return item.oid == dash.oid }).el;
 		var currentActiveItem = document.querySelectorAll('nav.sidebar .active')[0];
 		currentActiveItem && currentActiveItem.classList.remove('active');
 		itemElement.querySelectorAll('a')[0].classList.add('active');
 
 		// Log size of dashboard when it loads
-		sisenseFrame.getSize().then(function(data) {
+		sisenseFrame.getSize().then(function (data) {
 			logger.log('New dashboard content height is ' + data.content.height + ' px');
 		});
 	}
@@ -366,24 +383,24 @@ ready(function() {
 		logger.log('Dashboard ' + dash.oid + ' filters changed');
 
 		// Update to current country filter
-		var filter = dash.filters.find(function(filter) {
+		var filter = dash.filters.find(function (filter) {
 			return filter.jaql.dim == config.countryDim && filter.jaql.filter && filter.jaql.filter.startsWith;
 		});
-		if(filter && !filter.disabled) {
+		if (filter && !filter.disabled) {
 			countryFilterElement.value = filter.jaql.filter.startsWith;
 		}
 		else {
 			countryFilterElement.value = null;
 		}
-		
+
 		// Update to current date filter
-		var dateFilter = dash.filters.find(function(filter) {
-			return  filter.jaql.dim == config.dateDim &&
-					filter.jaql.level == "days" &&
-					filter.jaql.filter &&
-					(filter.jaql.filter.from || filter.jaql.filter.to);
+		var dateFilter = dash.filters.find(function (filter) {
+			return filter.jaql.dim == config.dateDim &&
+				filter.jaql.level == "days" &&
+				filter.jaql.filter &&
+				(filter.jaql.filter.from || filter.jaql.filter.to);
 		});
-		if(dateFilter && !dateFilter.disabled) {
+		if (dateFilter && !dateFilter.disabled) {
 			fromDateElement.value = (dateFilter.jaql.filter.from || null);
 			toDateElement.value = (dateFilter.jaql.filter.to || null);
 		}
@@ -393,6 +410,3 @@ ready(function() {
 		}
 	}
 });
-
-
-
