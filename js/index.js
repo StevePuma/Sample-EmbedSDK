@@ -45,7 +45,7 @@ ready(function () {
 
 	// Set click event handler for "Ask Me" button
 	askMeButton.addEventListener('click', function () {
-		Sisense.connect('https://themortgageoffice.sisensepoc.com/').then(function (app) {
+		Sisense.connect('https://vividly.sisensepoc.com').then(function (app) {
 			app.dashboards.load('655d10fde7520d00336ea3a6').then(function (dashboard) {
 				dashboard.popSimplyAsk({ containerClass: 'custom-class-name' });
 			});

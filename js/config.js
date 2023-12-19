@@ -17,18 +17,18 @@
      */
     const obj = {
         // UPDATE THIS
-        baseUrl: 'https://themortgageoffice.sisensepoc.com',
+        baseUrl: 'https://vividly.sisensepoc.com',
 
         // UPDATE THIS
         dashboards: [
             {
                 title: "Demo Dashboard #1",
-                oid: "655d10aee7520d00336ea389",
+                oid: "656e522394f9d70033e4e796",
                 default: true
             },
             {
                 title: "Demo Dashboard #2",
-                oid: "655d10fde7520d00336ea3a6",
+                oid: "6578b9aa94f9d70033e4e86f",
                 default: false
             }
         ],
